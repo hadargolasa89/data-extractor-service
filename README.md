@@ -1,54 +1,51 @@
 # Data Extractor Service
 
-A free reference backend for the **Data Extractor** home assignment.  
-Send your JSON to the `/process` endpoint and receive the correctly processed output.
+Backend service for the **Data Extractor** home assignment.  
+Live at: **`https://data-extractor-service.onrender.com`**
 
-## Live API
+---
+
+## Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/health` | Health check |
-| `POST` | `/process` | Process a JSON object |
+| `GET` | `/source-data` | Returns the raw, messy JSON the candidate must transform |
+| `POST` | `/source-data` | Upload the candidate's processed result to store it server-side |
+| `POST` | `/source-data/reset` | Reset stored data back to the original raw data |
 | `GET` | `/docs` | Interactive Swagger UI |
 
 ---
 
-## Processing Rules
+## Usage
 
-| Value type | Transformation |
-|-----------|----------------|
-| String matching `YYYY/MM/DD HH:mm:ss` | Year changed to **2021** |
-| Other strings | All whitespace removed, then **reversed** |
-| Lists | **Duplicates removed** (order preserved) |
-| Numbers / booleans / null | Unchanged |
-
----
-
-## Example
-
-**Request**
+### 1. Fetch the raw source data
 ```bash
-curl -X POST https://<your-service>.onrender.com/process \
+curl https://data-extractor-service.onrender.com/source-data
+```
+
+### 2. POST your processed result
+```bash
+curl -X POST https://data-extractor-service.onrender.com/source-data \
   -H "Content-Type: application/json" \
   -d '{
-    "value1": "1999/10/10 10:15:15",
-    "value2": "sdfg fgfgf ffgfgrrrt sdfgsdf bmbmbmbp",
-    "value3": ["bar", "baz", "foo", "bar", "baz", 5],
-    "value4": "1997/10/10 10:15:15z"
+    "value1": "2021/10/10 10:15:15",
+    "value2": "pbmbmbmbfdsgsfdstrrrgrfgfffgfgfgfgfds",
+    "value3": ["bar", "baz", "foo", 5],
+    "value4": "z51:51:0101/01/7991"
   }'
 ```
 
-**Response**
-```json
-{
-  "value1": "2021/10/10 10:15:15",
-  "value2": "pbmbmbmbfdsgsfdstrrrgrfgfffgfgfgfgfds",
-  "value3": ["bar", "baz", "foo", 5],
-  "value4": "z51:51:0101/01/7991"
-}
+### 3. GET again to verify it was stored
+```bash
+curl https://data-extractor-service.onrender.com/source-data
 ```
 
-> `value4` has a trailing `z` so it does **not** match the datetime format — it is treated as a plain string.
+### 4. Reset when done
+```bash
+curl -X POST https://data-extractor-service.onrender.com/source-data/reset
+```
+
+> ⚠️ Storage is **in-memory** — resets automatically when the service restarts (Render free tier sleeps after 15 min idle). First request after idle takes ~30s to wake up.
 
 ---
 
@@ -56,36 +53,7 @@ curl -X POST https://<your-service>.onrender.com/process \
 
 ```bash
 pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-Then open http://localhost:8000/docs for the interactive API docs.
-
-## Run Tests
-
-```bash
-# pytest e2e tests
-pytest tests/test_e2e.py -v
-
-# unittest tests
-python -m pytest tests/test_unit.py -v
-# or
-python -m unittest discover -s tests -p "test_unit.py"
-```
-
----
-
-## Project Layout
-
-```
-.
-├── data_extractor.py   # DataExtractor class + shared processing logic
-├── main.py             # FastAPI web service
-├── tests/
-│   ├── test_e2e.py     # pytest end-to-end tests (HTTP layer)
-│   └── test_unit.py    # unittest tests (DataExtractor class)
-├── requirements.txt
-└── render.yaml         # Render deployment config
+python3 -m uvicorn main:app --reload
 ```
 
 ---
@@ -94,8 +62,6 @@ python -m unittest discover -s tests -p "test_unit.py"
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/hadargolasa89/data-extractor-service)
 
-Or manually:
 1. Go to [render.com](https://render.com) → sign up with GitHub.
 2. Click the button above — Render reads `render.yaml` and pre-fills all settings.
 3. Click **Create Resources** — live in ~2 min.
-4. Your service will be live at `https://data-extractor-service.onrender.com`.
