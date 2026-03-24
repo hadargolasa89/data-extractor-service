@@ -92,7 +92,10 @@ python -m unittest discover -s tests -p "test_unit.py"
 
 ## Deploy to Render (free)
 
-1. Push this repo to GitHub.
-2. Go to [render.com](https://render.com) → **New Web Service** → connect your repo.
-3. Render picks up `render.yaml` automatically — click **Deploy**.
-4. Your service will be live at `https://<name>.onrender.com`.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/hadargolasa89/data-extractor-service)
+
+Or manually:
+1. Go to [render.com](https://render.com) → sign up with GitHub.
+2. Click the button above — Render reads `render.yaml` and pre-fills all settings.
+3. Click **Create Resources** — live in ~2 min.
+4. Your service will be live at `https://data-extractor-service.onrender.com`.
